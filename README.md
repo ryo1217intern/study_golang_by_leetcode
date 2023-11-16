@@ -30,3 +30,81 @@ fmt.Println(language)//map["japan":"japanese", "america":"english"]
 fmt.Println(language["japan"])//"japanese"
 
 ```
+
+## for range とは何か？
+
+_A. index の数だけ for 文を回すことができる_
+
+以下の例では`i`に index の値,`v`には配列の要素を代入する.
+
+```golang
+for i, v = range [int]{1,2,3} {
+fmt.Println(i, v)
+//0, 1
+//1, 2
+//2, 3
+}
+```
+
+また注意点として map 配列の場合実行される順序がランダムになってしまうという点です.
+
+```Golang
+package main
+
+import "fmt"
+
+func main() {
+	m := map[int]string{
+		1: "value1",
+		2: "value2",
+		3: "value3",
+	}
+
+	for key, value := range m {
+		fmt.Println(key, value)
+	}
+}
+```
+
+この時出力される値はランダムになってしまいます。
+
+> 古い言語仕様では、マップの反復順序が定義しておらず、ハードウェアプラットフォーム間で実行順が異なっていた。反復順序に依存すると移植性がなくなるため、ランダム性を持たせている。というのがこの挙動の理由みたいです。
+
+[公式 Document](https://go.dev/doc/go1#iteration)
+
+順番に実行する際には以下のようなコードで実装を行う.
+
+```Golang
+package main
+
+import (
+	"fmt"
+	"sort"
+)
+
+func main() {
+
+  //map配列の宣言
+	m := map[int]string{
+		1: "value1",
+		2: "value2",
+		3: "value3",
+	}
+
+  //mのインデックス番号用の配列
+	var keys []int
+
+  //mのインデックス番号を格納（この際、格納される番号はランダム）
+	for k := range m {
+		keys = append(keys, k)
+	}
+
+  //格納されたランダムなindex番号をソート
+	sort.Ints(keys)
+
+  //map配列ではないkeysによってfor文を回す
+	for _, k := range keys {
+		fmt.Println("Key:", k, "Value:", m[k])
+	}
+}
+```
